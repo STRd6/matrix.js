@@ -1,14 +1,41 @@
 /**
- * Matrix v1.0.0
- * 
- * Loosely based on flash:
- * http://www.adobe.com/livedocs/flash/9.0/ActionScriptLangRefV3/flash/geom/Matrix.html
- */
+* Matrix v1.0.1
+* 
+* Loosely based on flash:
+* http://www.adobe.com/livedocs/flash/9.0/ActionScriptLangRefV3/flash/geom/Matrix.html
+*/
 (function() {
+  /**
+   * Create a new point with given x and y coordinates. If no arguments are given
+   * defaults to (0, 0).
+   * @name Point
+   * @param {Number} [x]
+   * @param {Number} [y]
+   * @constructor
+   */
   function Point(x, y) {
     return {
+      /**
+       * The x coordinate of this point.
+       * @name x
+       * @fieldOf Point#
+       */
       x: x || 0,
+      /**
+       * The y coordinate of this point.
+       * @name y
+       * @fieldOf Point#
+       */
       y: y || 0,
+      /**
+       * Adds a point to this one and returns the new point.
+       * @name add
+       * @methodOf Point#
+       *
+       * @param {Point} point The point to add this point to.
+       * @returns A new point, the sum of both.
+       * @type Point
+       */
       add: function(other) {
         return Point(this.x + other.x, this.y + other.y);
       }
@@ -16,14 +43,21 @@
   }
 
   /**
-   * Returns the Euclidean distance between two points.
+   * @param {Point} p1
+   * @param {Point} p2
+   * @returns The Euclidean distance between two points.
    */
   Point.distance = function(p1, p2) {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   };
 
   /**
-   * Returns the direction from p1 to p2 in radians.
+   * If you have two dudes, one standing at point p1, and the other
+   * standing at point p2, then this method will return the direction
+   * that the dude standing at p1 will need to face to look at p2.
+   * @param {Point} p1 The starting point.
+   * @param {Point} p2 The ending point.
+   * @returns The direction from p1 to p2 in radians.
    */
   Point.direction = function(p1, p2) {
     return Math.atan2(
@@ -33,32 +67,75 @@
   }
 
   /**
-   * Creates a matrix for 2d affine transformations.
+   * <pre>
    *  _        _
    * | a  c tx  |
    * | b  d ty  |
    * |_0  0  1 _|
+   * </pre>
+   * Creates a matrix for 2d affine transformations.
    *
    * concat, inverse, rotate, scale and translate return new matrices with the
    * transformations applied. The matrix is not modified in place.
    *
    * Returns the identity matrix when called with no arguments.
+   * @name Matrix
+   * @param {Number} [a]
+   * @param {Number} [b]
+   * @param {Number} [c]
+   * @param {Number} [d]
+   * @param {Number} [tx]
+   * @param {Number} [ty]
+   * @constructor
    */
   function Matrix(a, b, c, d, tx, ty) {
     a = a !== undefined ? a : 1;
     d = d !== undefined ? d : 1;
 
     return {
+      /**
+       * @name a
+       * @fieldOf Matrix#
+       */
       a: a,
+      /**
+       * @name b
+       * @fieldOf Matrix#
+       */
       b: b || 0,
+      /**
+       * @name c
+       * @fieldOf Matrix#
+       */
       c: c || 0,
+      /**
+       * @name d
+       * @fieldOf Matrix#
+       */
       d: d,
+      /**
+       * @name tx
+       * @fieldOf Matrix#
+       */
       tx: tx || 0,
+      /**
+       * @name ty
+       * @fieldOf Matrix#
+       */
       ty: ty || 0,
 
       /**
-       * Return the result of this matrix (A) multiplied by another matrix (B), i.e. A x B
+       * Returns the result of this matrix multiplied by another matrix
+       * combining the geometric effects of the two. In mathematical terms, 
+       * concatenating two matrixes is the same as combining them using matrix multiplication.
+       * If this matrix is A and the matrix passed in is B, the resulting matrix is A x B
        * http://mathworld.wolfram.com/MatrixMultiplication.html
+       * @name concat
+       * @methodOf Matrix#
+       *
+       * @param {Matrix} matrix The matrix to multiply this matrix by.
+       * @returns The result of the matrix multiplication, a new matrix.
+       * @type Matrix
        */
       concat: function(matrix) {
         return Matrix(
@@ -71,6 +148,18 @@
         );
       },
 
+      /**
+       * Given a point in the pretransform coordinate space, returns the coordinates of 
+       * that point after the transformation occurs. Unlike the standard transformation 
+       * applied using the transformPoint() method, the deltaTransformPoint() method's 
+       * transformation does not consider the translation parameters tx and ty.
+       * @name deltaTransformPoint
+       * @methodOf Matrix#
+       * @see #transformPoint
+       *
+       * @return A new point transformed by this matrix ignoring tx and ty.
+       * @type Point
+       */
       deltaTransformPoint: function(point) {
         return Point(
           this.a * point.x + this.c * point.y,
@@ -81,6 +170,11 @@
       /**
        * Returns the inverse of the matrix.
        * http://mathworld.wolfram.com/MatrixInverse.html
+       * @name inverse
+       * @methodOf Matrix#
+       *
+       * @returns A new matrix that is the inverse of this matrix.
+       * @type Matrix
        */
       inverse: function() {
         var determinant = this.a * this.d - this.b * this.c;
@@ -94,17 +188,46 @@
         );
       },
 
+      /**
+       * Returns a new matrix that corresponds this matrix multiplied by a
+       * a rotation matrix.
+       * @name rotate
+       * @methodOf Matrix#
+       * @see Matrix.rotation
+       *
+       * @param {Number} theta Amount to rotate in radians.
+       * @param {Point} [aboutPoint] The point about which this rotation occurs. Defaults to (0,0).
+       * @returns A new matrix, rotated by the specified amount.
+       * @type Matrix
+       */
       rotate: function(theta, aboutPoint) {
         return Matrix.rotation(theta, aboutPoint).concat(this);
       },
 
+      /**
+       * Returns a new matrix that corresponds this matrix multiplied by a
+       * a scaling matrix.
+       * @name scale
+       * @methodOf Matrix#
+       * @see Matrix.scale
+       *
+       * @param {Number} sx
+       * @param {Number} [sy]
+       * @type Matrix
+       */
       scale: function(sx, sy) {
         return Matrix.scale(sx, sy).concat(this);
       },
 
       /**
-       * Transforms a point by multiplying it through the matrix.
-       * Returns the new point.
+       * Returns the result of applying the geometric transformation represented by the 
+       * Matrix object to the specified point.
+       * @name transformPoint
+       * @methodOf Matrix#
+       * @see #deltaTransformPoint
+       *
+       * @returns A new point with the transformation applied.
+       * @type Point
        */
       transformPoint: function(point) {
         return Point(
@@ -113,6 +236,17 @@
         );
       },
 
+      /**
+       * Translates the matrix along the x and y axes, as specified by the tx and ty parameters.
+       * @name translate
+       * @methodOf Matrix#
+       * @see Matrix.translation
+       *
+       * @param {Number} tx The translation along the x axis.
+       * @param {Number} ty The translation along the y axis.
+       * @returns A new matrix with the translation applied.
+       * @type Matrix
+       */
       translate: function(tx, ty) {
         return Matrix.translation(tx, ty).concat(this);
       }
@@ -120,9 +254,14 @@
   }
 
   /**
-   * Returns a matrix that corresponds to a rotation of angle theta in radians.
-   * If optional aboutPoint argument is given, the rotation takes place about
-   * that point.
+   * Creates a matrix transformation that corresponds to the given rotation,
+   * around (0,0) or the specified point.
+   * @see Matrix#rotate
+   *
+   * @param {Number} theta Rotation in radians.
+   * @param {Point} [aboutPoint] The point about which this rotation occurs. Defaults to (0,0).
+   * @returns 
+   * @type Matrix
    */
   Matrix.rotation = function(theta, aboutPoint) {
     var rotationMatrix = Matrix(
@@ -145,8 +284,15 @@
   };
 
   /**
-   * Returns a matrix that corresponds to a scaling by factors of sx, sy.
-   * If only one parameter is given the matrix is scaled uniformly.
+   * Returns a matrix that corresponds to scaling by factors of sx, sy along
+   * the x and y axis respectively.
+   * If only one parameter is given the matrix is scaled uniformly along both axis.
+   * @see Matrix#scale
+   *
+   * @param {Number} sx The amount to scale by along the x axis or uniformly if no sy is given.
+   * @param {Number} [sy] The amount to scale by along the y axis.
+   * @returns A matrix transformation representing scaling by sx and sy.
+   * @type Matrix
    */
   Matrix.scale = function(sx, sy) {
     sy = sy || sx;
@@ -156,16 +302,37 @@
 
   /**
    * Returns a matrix that corresponds to a translation of tx, ty.
+   * @see Matrix#translate
+   *
+   * @param {Number} tx The amount to translate in the x direction.
+   * @param {Number} ty The amount to translate in the y direction.
+   * @return A matrix transformation representing a translation by tx and ty.
+   * @type Matrix
    */
   Matrix.translation = function(tx, ty) {
     return Matrix(1, 0, 0, 1, tx, ty);
   };
 
+  /**
+   * A constant representing the identity matrix.
+   * @name IDENTITY
+   * @fieldOf Matrix
+   */
   Matrix.IDENTITY = Matrix();
+  /**
+   * A constant representing the horizontal flip transformation matrix.
+   * @name HORIZONTAL_FLIP
+   * @fieldOf Matrix
+   */
   Matrix.HORIZONTAL_FLIP = Matrix(-1, 0, 0, 1);
+  /**
+   * A constant representing the vertical flip transformation matrix.
+   * @name VERTICAL_FLIP
+   * @fieldOf Matrix
+   */
   Matrix.VERTICAL_FLIP = Matrix(1, 0, 0, -1);
-
+  
   // Export to window
-  window['Matrix'] = Matrix;
-  window['Point'] = Point;
+  window["Point"] = Point;
+  window["Matrix"] = Matrix;
 }());
