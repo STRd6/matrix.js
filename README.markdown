@@ -1,12 +1,14 @@
-= Matrix.js 1.0.0 =
+= Matrix.js 1.0.1 =
 
-TODO: Extract docs from code...
+[Matrix.js Documentation](http://strd6.com/matrix.js/docs)
 
-In the meantime read the source and tests, they're pretty ok.
+[Unit Tests](http://strd6.com/matrix.js/matrix_test.html)
+
+[Guided Demo](http://strd6.com/2010/06/matrix-js-demo/)
 
 == Using with HTML5 Canvas ==
 
-You'll probably want this:
+You'll probably want this (transformation is a Matrix instance):
 
     function withTransformation(transformation, block) {
       context.save();
