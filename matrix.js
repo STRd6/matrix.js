@@ -1,5 +1,5 @@
 /**
-* Matrix.js v1.0.2
+* Matrix.js v1.1.0
 * 
 * Copyright (c) 2010 STRd6
 *
@@ -221,7 +221,7 @@
        * @type Matrix
        */
       rotate: function(theta, aboutPoint) {
-        return Matrix.rotation(theta, aboutPoint).concat(this);
+        return this.concat(Matrix.rotation(theta, aboutPoint));
       },
 
       /**
@@ -233,10 +233,11 @@
        *
        * @param {Number} sx
        * @param {Number} [sy]
+       * @param {Point} [aboutPoint] The point that remains fixed during the scaling
        * @type Matrix
        */
-      scale: function(sx, sy) {
-        return Matrix.scale(sx, sy).concat(this);
+      scale: function(sx, sy, aboutPoint) {
+        return this.concat(Matrix.scale(sx, sy, aboutPoint));
       },
 
       /**
@@ -268,7 +269,7 @@
        * @type Matrix
        */
       translate: function(tx, ty) {
-        return Matrix.translation(tx, ty).concat(this);
+        return this.concat(Matrix.translation(tx, ty));
       }
     }
   }
@@ -307,17 +308,31 @@
    * Returns a matrix that corresponds to scaling by factors of sx, sy along
    * the x and y axis respectively.
    * If only one parameter is given the matrix is scaled uniformly along both axis.
+   * If the optional aboutPoint parameter is given the scaling takes place
+   * about the given point.
    * @see Matrix#scale
    *
    * @param {Number} sx The amount to scale by along the x axis or uniformly if no sy is given.
    * @param {Number} [sy] The amount to scale by along the y axis.
+   * @param {Point} [aboutPoint] The point about which the scaling occurs. Defaults to (0,0).
    * @returns A matrix transformation representing scaling by sx and sy.
    * @type Matrix
    */
-  Matrix.scale = function(sx, sy) {
+  Matrix.scale = function(sx, sy, aboutPoint) {
     sy = sy || sx;
 
-    return Matrix(sx, 0, 0, sy);
+    var scaleMatrix = Matrix(sx, 0, 0, sy);
+
+    if(aboutPoint) {
+      scaleMatrix =
+        Matrix.translation(aboutPoint.x, aboutPoint.y).concat(
+          scaleMatrix
+        ).concat(
+          Matrix.translation(-aboutPoint.x, -aboutPoint.y)
+        );
+    }
+
+    return scaleMatrix;
   };
 
   /**

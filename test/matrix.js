@@ -1,9 +1,21 @@
 $(function() {
+  var TOLERANCE = 0.00001;
+
   function equalEnough(expected, actual, tolerance, message) {
+    message = message || "" + expected + " within " + tolerance + " of " + actual;
     ok(expected + tolerance >= actual && expected - tolerance <= actual, message);
   }
 
-  test("Identity", function() {
+  function matrixEqual(m1, m2) {
+    equalEnough(m1.a, m2.a, TOLERANCE);
+    equalEnough(m1.b, m2.b, TOLERANCE);
+    equalEnough(m1.c, m2.c, TOLERANCE);
+    equalEnough(m1.d, m2.d, TOLERANCE);
+    equalEnough(m1.tx, m2.tx, TOLERANCE);
+    equalEnough(m1.ty, m2.ty, TOLERANCE);
+  }
+
+  test("Matrix() (Identity)", function() {
     var matrix = Matrix();
 
     equals(matrix.a, 1, "a");
@@ -12,6 +24,8 @@ $(function() {
     equals(matrix.d, 1, "d");
     equals(matrix.tx, 0, "tx");
     equals(matrix.ty, 0, "ty");
+
+    matrixEqual(matrix, Matrix.IDENTITY);
   });
 
   test("Empty Matrix", function() {
@@ -41,13 +55,49 @@ $(function() {
     equals(matrix.d, 3, "d");
   });
 
+  test("Matrix.scale (about a point)", function() {
+    var p = Point(5, 17);
+
+    var transformedPoint = Matrix.scale(3, 7, p).transformPoint(p);
+
+    equals(transformedPoint.x, p.x, "Point should remain the same");
+    equals(transformedPoint.y, p.y, "Point should remain the same");
+  });
+
+  test("Matrix#scale (about a point)", function() {
+    var p = Point(3, 11);
+
+    var transformedPoint = Matrix.IDENTITY.scale(3, 7, p).transformPoint(p);
+
+    equals(transformedPoint.x, p.x, "Point should remain the same");
+    equals(transformedPoint.y, p.y, "Point should remain the same");
+  });
+
   test("Matrix.rotation", function() {
     var matrix = Matrix.rotation(Math.PI / 2);
 
-    equalEnough(matrix.a, 0, 0.00001);
-    equalEnough(matrix.b, 1, 0.00001);
-    equalEnough(matrix.c,-1, 0.00001);
-    equalEnough(matrix.d, 0, 0.00001);
+    equalEnough(matrix.a, 0, TOLERANCE);
+    equalEnough(matrix.b, 1, TOLERANCE);
+    equalEnough(matrix.c,-1, TOLERANCE);
+    equalEnough(matrix.d, 0, TOLERANCE);
+  });
+
+  test("Matrix.rotation (about a point)", function() {
+    var p = Point(11, 7);
+
+    var transformedPoint = Matrix.rotation(Math.PI / 2, p).transformPoint(p);
+
+    equals(transformedPoint.x, p.x, "Point should remain the same");
+    equals(transformedPoint.y, p.y, "Point should remain the same");
+  });
+
+  test("Matrix#rotate (about a point)", function() {
+    var p = Point(8, 5);
+
+    var transformedPoint = Matrix.IDENTITY.rotate(Math.PI / 2, p).transformPoint(p);
+
+    equals(transformedPoint.x, p.x, "Point should remain the same");
+    equals(transformedPoint.y, p.y, "Point should remain the same");
   });
 
   test("Matrix#inverse (Identity)", function() {
@@ -64,12 +114,7 @@ $(function() {
   test("Matrix#concat", function() {
     var matrix = Matrix.rotation(Math.PI / 2).concat(Matrix.rotation(-Math.PI / 2));
 
-    equalEnough(matrix.a,  1, 0.00001);
-    equalEnough(matrix.b,  0, 0.00001);
-    equalEnough(matrix.c,  0, 0.00001);
-    equalEnough(matrix.d,  1, 0.00001);
-    equalEnough(matrix.tx, 0, 0.00001);
-    equalEnough(matrix.ty, 0, 0.00001);
+    matrixEqual(matrix, Matrix.IDENTITY);
   });
 
   test("Maths", function() {
@@ -84,5 +129,17 @@ $(function() {
     equals(c.d, 11);
     equals(c.tx, 34);
     equals(c.ty, 17);
+  });
+
+  test("Order of transformations should match manual concat", function() {
+    var tx = 10;
+    var ty = 5;
+    var theta = Math.PI/3;
+    var s = 2;
+
+    var m1 = Matrix().translate(tx, ty).scale(s).rotate(theta);
+    var m2 = Matrix().concat(Matrix.translation(tx, ty)).concat(Matrix.scale(s)).concat(Matrix.rotation(theta));
+
+    matrixEqual(m1, m2);
   });
 });
