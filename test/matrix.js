@@ -142,4 +142,42 @@ $(function() {
 
     matrixEqual(m1, m2);
   });
+
+  test("Point#add", function() {
+    var p1 = Point(5, 6);
+    var p2 = Point(7, 5);
+
+    var result = p1.add(p2);
+
+    equals(result.x, p1.x + p2.x);
+    equals(result.y, p1.y + p2.y);
+  });
+
+  test("Point#subtract", function() {
+    var p1 = Point(5, 6);
+    var p2 = Point(7, 5);
+
+    var result = p1.subtract(p2);
+
+    equals(result.x, p1.x - p2.x);
+    equals(result.y, p1.y - p2.y);
+  });
+
+  test("Point#scale", function() {
+    var p1 = Point(5, 6);
+    var scalar = 2;
+
+    var result = p1.scale(scalar);
+
+    equals(result.x, p1.x * scalar);
+    equals(result.y, p1.y * scalar);
+  });
+
+  test("Point#equal", function() {
+    ok(Point(7, 8).equal(Point(7, 8)));
+  });
+
+  test("Point#magnitude", function() {
+    equals(Point(3, 4).magnitude(), 5);
+  });
 });

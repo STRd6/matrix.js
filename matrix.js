@@ -1,5 +1,5 @@
 /**
-* Matrix.js v1.1.0
+* Matrix.js v1.2.0
 * 
 * Copyright (c) 2010 STRd6
 *
@@ -48,6 +48,20 @@
        */
       y: y || 0,
       /**
+       * Check whether two points are equal. The x and y values must be exactly
+       * equal for this method to return true.
+       * @name equal
+       * @methodOf Point#
+       *
+       * @param {Point} other The point to check for equality.
+       * @returns true if this point is equal to the other point, false
+       * otherwise.
+       * @type Boolean
+       */
+      equal: function(other) {
+        return this.x === other.x && this.y === other.y;
+      },
+      /**
        * Adds a point to this one and returns the new point.
        * @name add
        * @methodOf Point#
@@ -58,6 +72,42 @@
        */
       add: function(other) {
         return Point(this.x + other.x, this.y + other.y);
+      },
+      /**
+       * Subtracts a point from this one and returns the new point.
+       * @name subtract
+       * @methodOf Point#
+       *
+       * @param {Point} other The point to subtract from this point.
+       * @returns A new point, the difference of both.
+       * @type Point
+       */
+      subtract: function(other) {
+        return Point(this.x - other.x, this.y - other.y);
+      },
+      /**
+       * Multiplies this point by a scalar value and returns the new point.
+       * @name scale
+       * @methodOf Point#
+       *
+       * @param {Point} scalar The value to scale this point by.
+       * @returns A new point with x and y multiplied by the scalar value.
+       * @type Point
+       */
+      scale: function(scalar) {
+        return Point(this.x * scalar, this.y * scalar);
+      },
+      /**
+       * Returns the distance of this point from the origin. If this point is
+       * thought of as a vector this distance is its magnitude.
+       * @name magnitude
+       * @methodOf Point#
+       *
+       * @returns The distance of this point from the origin.
+       * @type Number
+       */
+      magnitude: function() {
+        return Point.distance(Point(0, 0), this);
       }
     }
   }
