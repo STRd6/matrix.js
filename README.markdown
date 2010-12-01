@@ -31,6 +31,12 @@ You'll probably want this (transformation is a Matrix instance):
 
 ## Changelog
 
+### v1.2.0
+
+Added a bunch of utility methods to Points.
+
+`subtract`, `scale`, `equal`, and `magnitude`.
+
 ### v1.1.0
 
 Instance method transforamtions (scale, rotate, and translate) are now consistent with concatenation order.
