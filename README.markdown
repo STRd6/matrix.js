@@ -1,4 +1,4 @@
-# Matrix.js 1.1.0
+# Matrix.js 1.2.0
 
 [Matrix.js Documentation](http://strd6.com/matrix.js/docs)
 
